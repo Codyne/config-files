@@ -1,0 +1,103 @@
+!-------------------------------------------------------------------------------
+! Xft settings
+!-------------------------------------------------------------------------------
+
+Xft.dpi:                    96
+Xft.antialias:              false
+Xft.rgba:                   rgb
+Xft.hinting:                true
+Xft.hintstyle:              hintslight
+
+!-------------------------------------------------------------------------------
+! URxvt settings
+!-------------------------------------------------------------------------------
+
+URxvt.depth:                32
+URxvt.geometry:             100x21
+URxvt.transparent:          false
+URxvt.fading:               0
+! URxvt.urgentOnBell:         true
+! URxvt.visualBell:           true
+URxvt.loginShell:           true
+URxvt.saveLines:            20000
+URxvt.internalBorder:       3
+URxvt.lineSpace:            1
+
+! Fonts
+URxvt.allow_bold:           true
+URxvt*font: xft:DejaVu Sans Mono:pixelsize=14
+URxvt*boldFont: xft:DejaVu Sans Mono:pixelsize=14
+
+! Fix font space
+URxvt*letterSpace: -1
+
+! Scrollbar
+URxvt.scrollStyle:          rxvt
+URxvt.scrollBar:            false
+
+! Perl extensions
+URxvt.perl-ext-common:      default,matcher
+URxvt.matcher.button:       1
+
+! Cursor
+URxvt.cursorBlink:          true
+URxvt.cursorColor:          #f2f2f2
+URxvt.cursorUnderline:      false
+
+! Pointer
+URxvt.pointerBlank:         true
+
+! Keybinds
+URxvt.keysym.Shift-Control-V: eval:paste_clipboard
+Urxvt.Keysym.Shift-Control-C: eval:selection_to_clipboard
+
+! Disable Picture Insert mode
+URxvt.iso14755: false
+URxvt.iso14755_52: false
+
+*background: #161616
+*foreground: #f2f2f2
+!!*fading: 40
+*fadeColor: #161616
+*cursorColor: #93a1a1
+*pointerColorBackground: #586e75
+*pointerColorForeground: #93a1a1
+
+URxvt.url-launcher: chromium
+
+! special
+*.foreground:	#f2f2f2
+*.background:   #05070c
+*.cursorColor:  #a5a2a2
+
+! black
+*.color0:       #161616
+*.color8:       #5c5855
+
+! red
+*.color1:	 #E22929
+*.color9:	 #E25252
+
+! green
+*.color2:       #01a252
+*.color10:      #40a371
+
+! yellow
+*.color3:       #fded02
+*.color11:      #fcf262
+
+! blue
+*.color4:       #0135E4
+*.color12:      #5980E3
+
+! magenta
+*.color5:       #a16a94
+*.color13:      #a1839a
+
+! cyan
+*.color6:       #0091F4
+*.color14:      #71BFF4
+
+! white
+*.color7:       #a5a2a2
+*.color15:      #f7f7f7
