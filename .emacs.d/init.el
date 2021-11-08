@@ -7,7 +7,10 @@
 (set-default-coding-systems 'utf-8)
 (set-background-color "#161616")
 (set-foreground-color "#f2f2f2")
+
+(ac-config-default)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;WHITESPACE SETTING;;;;;;;;
 (require 'whitespace)
