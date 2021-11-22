@@ -24,6 +24,7 @@
 	      tab-width 4
 	      indent-tabs-mode t)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+(setq inhibit-eol-conversion t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;MISC SANE SETTINGS;;;;;;;;
