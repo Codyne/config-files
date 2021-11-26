@@ -154,7 +154,7 @@ function fixlines {
 			echo " -r, --resive-fix DIRECTORY\n\tFix all lines for all files in directory recursively"
 			echo " -b, --backups\n\tCreate backup files when fixing lines"
 			echo " -rb, --remove-backups DIRECTORY\n\tRemove backup files recursively created by fixlines"
-			exit
+			return
 			;;
 	esac
     done
