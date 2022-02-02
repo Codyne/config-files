@@ -11,7 +11,6 @@
 (ac-config-default)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;WHITESPACE SETTING;;;;;;;;
 (require 'whitespace)
 (setq whitespace-line-column 80) ;; limit line length
@@ -25,6 +24,22 @@
 	      indent-tabs-mode t)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (setq inhibit-eol-conversion t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;EMACS DIFF SETTING;;;;;;;;
+(defun update-diff-colors ()
+  "update the colors for diff faces"
+  (set-face-attribute 'diff-added nil
+					  :foreground "black" :background "green")
+  (set-face-attribute 'diff-removed nil
+					  :foreground "black" :background "red")
+  (set-face-attribute 'diff-changed nil
+					  :foreground "black" :background "purple")
+  (set-face-attribute 'diff-header nil
+					  :foreground "black" :background "white")
+  )
+(eval-after-load "diff-mode"
+  '(update-diff-colors))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;MISC SANE SETTINGS;;;;;;;;
