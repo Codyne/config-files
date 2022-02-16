@@ -40,6 +40,12 @@
   )
 (eval-after-load "diff-mode"
   '(update-diff-colors))
+
+(custom-set-faces
+ '(smerge-lower ((t (:extend t :background "#ddffdd" :foreground "black"))))
+ '(smerge-markers ((t (:extend t :background "grey85" :foreground "black"))))
+ '(smerge-refined-added ((t (:inherit smerge-refined-change :background "#aaffaa" :foreground "black"))))
+ '(smerge-upper ((t (:extend t :background "#ffdddd" :foreground "black")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;MISC SANE SETTINGS;;;;;;;;
