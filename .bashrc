@@ -56,8 +56,12 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+parse_git_branch() {
+	git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[1;33m\]$(parse_git_branch)\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -122,59 +126,6 @@ function i3_ws_manager {
 	switch) i3-msg workspace $(eval $cur) ;;
 	*) echo -e "Options\n\tmove - move the focused container to a workspace\n\tswitch - switch the current workspace to the input" ;;
     esac
-}
-
-function fixlines {
-    while [ $# -gt 0 ]; do
-	flag="$1"
-	case $flag in
-		-f|--fix-file)
-			FIX_FILE="$2"
-			shift
-			shift
-			;;
-		-r|--recursive-fix)
-			RECURSIVE_FIX="$2"
-			shift
-			shift
-			;;
-		-b|--backups)
-			BACKUPS=1
-			shift
-			;;
-		-rb|--remove-backups)
-			REMOVE_BACKUPS="$2"
-			shift
-			shift
-			;;
-		*)
-			echo "Usage:\n fixlines [options]\n"
-			echo "Options:\n"
-			echo " -f, --fix-file FILE\n\tFix lines in FILE"
-			echo " -r, --resive-fix DIRECTORY\n\tFix all lines for all files in directory recursively"
-			echo " -b, --backups\n\tCreate backup files when fixing lines"
-			echo " -rb, --remove-backups DIRECTORY\n\tRemove backup files recursively created by fixlines"
-			return
-			;;
-	esac
-    done
-
-    if [ ! -z $BACKUPS ]; then
-	BACKUP_TAG=.lf_bak;
-    fi
-
-    if [ ! -z $RECURSIVE_FIX ]; then
-	echo "Recursively fixing lines: $RECURSIVE_FIX";
-	find $RECURSIVE_FIX -type f | xargs -Ix sed -i$BACKUP_TAG -r 's/\r//g' x;
-    elif [ ! -z $FIX_FILE ]; then
-	echo "Fixing lines: $FIX_FILE";
-	sed -i$BACKUP_TAG -r 's/\r//g' $FIX_FILE;
-    fi
-
-    if [ ! -z $REMOVE_BACKUPS ]; then
-	echo "Removing backups: *.lb_bak in $REMOVE_BACKUPS";
-	find $REMOVE_BACKUPS -type f -name '*.lf_bak' | xargs -Ix rm x;
-    fi
 }
 
 alias emacs="emacs -nw"
