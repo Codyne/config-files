@@ -24,6 +24,19 @@
 	      indent-tabs-mode t)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (setq inhibit-eol-conversion t)
+
+(defun fix-eol ()
+" nil t) (re-search-forward "
+	    (replace-match ""))
+  )
+(add-hook 'before-save-hook 'fix-eol)
+
+(defun no-junk-please-were-unixish ()
+  (let ((coding-str (symbol-name buffer-file-coding-system)))
+	(when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+	  (set-buffer-file-coding-system 'unix))))
+
+(add-hook 'find-file-hooks 'no-junk-please-were-unixish)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;EMACS DIFF SETTING;;;;;;;;
@@ -61,6 +74,8 @@
 (setq lazy-highlight-initial-delay 0) ; remove highlight delay
 (setq lazy-highlight-cleanup nil) ; keep search strings highlighted
 (setq scroll-step 1 scroll-conservatively 10000) ; only scroll 1 line at a time
+
+(set-face-attribute 'region nil :background "#666" :foreground "#ffffff") ; highlight color
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;STOP START BUFFERS;;;;;;;;
