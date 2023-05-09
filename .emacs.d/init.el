@@ -18,17 +18,17 @@
 (global-whitespace-mode t)
 (setq column-number-mode t)
 (setq-default indent-tabs-mode t)
-(setq-default tab-width 4)
+;; (setq-default tab-width 4)
 (setq-default c-basic-offset 4
 	      tab-width 4
-	      indent-tabs-mode t)
+	      indent-tabs-mode nil)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (setq inhibit-eol-conversion t)
 
 (defun fix-eol ()
 " nil t) (re-search-forward "
 	    (replace-match ""))
-  )
+
 (add-hook 'before-save-hook 'fix-eol)
 
 (defun no-junk-please-were-unixish ()
