@@ -1,4 +1,4 @@
-;;;;;;;;INITIAL SETUP CMDS;;;;;;;;
+;;;;;;;INITIAL SETUP CMDS;;;;;;;
 (require 'package)
 (add-to-list 'package-archives' ("melpa" . "https://melpa.org/packages/") t)
 
@@ -8,38 +8,27 @@
 (set-background-color "#161616")
 (set-foreground-color "#f2f2f2")
 
-(ac-config-default)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ac-config-default) ;; auto-complete package default
+(define-key ac-completing-map [down] nil)
+(define-key ac-completing-map [up] nil)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;WHITESPACE SETTING;;;;;;;;
+;;;;;;;WHITESPACE SETTING;;;;;;;
 (require 'whitespace)
-(setq whitespace-line-column 80) ;; limit line length
+(setq whitespace-line-column 100) ;; limit line length
 (setq whitespace-style '(face empty lines-tail trailing))
 (global-whitespace-mode t)
 (setq column-number-mode t)
-(setq-default indent-tabs-mode t)
-;; (setq-default tab-width 4)
+;; (setq-default indent-tabs-mode t)
+(setq-default tab-width 4)
 (setq-default c-basic-offset 4
 	      tab-width 4
 	      indent-tabs-mode nil)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (setq inhibit-eol-conversion t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun fix-eol ()
-" nil t) (re-search-forward "
-	    (replace-match ""))
-
-(add-hook 'before-save-hook 'fix-eol)
-
-(defun no-junk-please-were-unixish ()
-  (let ((coding-str (symbol-name buffer-file-coding-system)))
-	(when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
-	  (set-buffer-file-coding-system 'unix))))
-
-(add-hook 'find-file-hooks 'no-junk-please-were-unixish)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;EMACS DIFF SETTING;;;;;;;;
+;;;;;;;EMACS DIFF SETTING;;;;;;;
 (defun update-diff-colors ()
   "update the colors for diff faces"
   (set-face-attribute 'diff-added nil
@@ -55,13 +44,35 @@
   '(update-diff-colors))
 
 (custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+
+ '(background "blue")
+
+ '(font-lock-builtin-face ((((class color) (background dark)) (:foreground "Turquoise"))))
+ '(font-lock-comment-face ((t (:foreground "MediumAquamarine"))))
+ '(font-lock-constant-face ((((class color) (background dark)) (:bold t :foreground "DarkOrchid"))))
+ '(font-lock-doc-string-face ((t (:foreground "green2"))))
+ '(font-lock-function-name-face ((t (:foreground "#a16a94"))))
+ '(font-lock-keyword-face ((t (:bold t :foreground "#a16a94"))))
+ '(font-lock-preprocessor-face ((t (:italic nil :foreground "CornFlowerBlue"))))
+ '(font-lock-reference-face ((t (:foreground "DodgerBlue"))))
+ '(font-lock-string-face ((t (:foreground "#40a371"))))
+ '(font-lock-type-face ((t (:foreground "#E25252"))))
+ '(font-lock-variable-name-face ((t (:foreground "#5980E3"))))
+
+ '(whitespace-empty ((t (:foreground "firebrick" :background "gray30"))))
+
  '(smerge-lower ((t (:extend t :background "#ddffdd" :foreground "black"))))
  '(smerge-markers ((t (:extend t :background "grey85" :foreground "black"))))
  '(smerge-refined-added ((t (:inherit smerge-refined-change :background "#aaffaa" :foreground "black"))))
- '(smerge-upper ((t (:extend t :background "#ffdddd" :foreground "black")))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ '(smerge-upper ((t (:extend t :background "#ffdddd" :foreground "black"))))
+ )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;MISC SANE SETTINGS;;;;;;;;
+;;;;;;;MISC SANE SETTINGS;;;;;;;
 (setq inhibit-startup-buffer-menu t) ; don't show buffer when opening files
 (add-hook 'window-setup-hook 'delete-other-windows) ; show only one active win
 (fset 'yes-or-no-p 'y-or-n-p) ; only type 'y' or 'n' to confirm yes or no
@@ -76,6 +87,38 @@
 (setq scroll-step 1 scroll-conservatively 10000) ; only scroll 1 line at a time
 
 (set-face-attribute 'region nil :background "#666" :foreground "#ffffff") ; highlight color
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;LINUX TABS;;;;;;;;;;;
+(defun c-lineup-arglist-tabs-only (ignored)
+  "Line up argument lists by tabs, not spaces"
+  (let* ((anchor (c-langelem-pos c-syntactic-element))
+         (column (c-langelem-2nd-pos c-syntactic-element))
+         (offset (- (1+ column) anchor))
+         (steps (floor offset c-basic-offset)))
+    (* (max steps 1)
+       c-basic-offset)))
+
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            ;; Add kernel style
+            (c-add-style
+             "linux-tabs-only"
+             '("linux" (c-offsets-alist
+                        (arglist-cont-nonempty
+                         c-lineup-gcc-asm-reg
+                         c-lineup-arglist-tabs-only))))))
+
+(add-hook 'c-mode-hook
+          (lambda ()
+            (let ((filename (buffer-file-name)))
+              ;; Enable kernel mode for the appropriate files
+              (when (and filename
+                         (string-match (expand-file-name "~/src/linux-trees")
+                                       filename))
+                (setq indent-tabs-mode t)
+                (setq show-trailing-whitespace t)
+                (c-set-style "linux-tabs-only")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;STOP START BUFFERS;;;;;;;;
@@ -118,7 +161,13 @@
 (defun comptex ()
   "Compiles the current .tex file to .pdf with pdflatex"
   (interactive)
-  (shell-command (concat "pdflatex " (buffer-file-name))))
+  (shell-command (concat "xelatex " (buffer-file-name) " > /dev/null 2>&1") nil))
 
 (global-set-key (kbd "C-c c") 'comptex)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages '(color-theme-modern kotlin-mode cmake-mode)))
