@@ -18,8 +18,12 @@ typedef struct config_t {
     uint8_t decimals;
 } config_t;
 
-bool pause_break = false;
-bool reset = false;
+typedef struct mouse_action_t {
+    bool pause_break;
+    bool reset;
+} mouse_action_t;
+
+mouse_action_t mouse_action;
 
 int msleep(long msec) {
 	struct timespec ts;
@@ -40,8 +44,9 @@ int msleep(long msec) {
 	return res;
 }
 
-void print_output(char *symbol, uint8_t decimals, double total_amount) {
-    printf("BILL %s%.*lf\n", symbol, decimals, total_amount);
+void print_output(config_t *conf, double total_amount) {
+    printf("%s%.*lf\n", conf->symbol,
+           conf->decimals, total_amount);
 
 	fflush(stdout);
 }
@@ -63,7 +68,7 @@ void run_ptimer(config_t conf) {
     }
 
 	clock_gettime(CLOCK_MONOTONIC, &start_t);
-	while (!reset) {
+	while (!mouse_action.reset) {
 		msleep(conf.update_speed_ms);
 		clock_gettime(CLOCK_MONOTONIC, &cur_t);
 
@@ -72,9 +77,9 @@ void run_ptimer(config_t conf) {
 
         d_us = ((double)diff_us / 1000000) - ((double)pause_us / 1000000);
 
-		print_output(conf.symbol, conf.decimals, amt_s * d_us);
+		print_output(&conf, amt_s * d_us);
 
-        while (pause_break && !reset) {
+        while (mouse_action.pause_break && !mouse_action.reset) {
             clock_gettime(CLOCK_MONOTONIC, &pause_t);
             msleep(conf.update_speed_ms);
 
@@ -88,15 +93,19 @@ void run_ptimer(config_t conf) {
 #define PAUSE_CLICK "1"
 #define RESET_CLICK "3"
 
+void handle_action(char *action) {
+    if (strncmp(action, PAUSE_CLICK, 1) == 0) {
+        mouse_action.pause_break = !mouse_action.pause_break;
+    } else if (strncmp(action, RESET_CLICK, 1) == 0) {
+        mouse_action.reset = true;
+    }
+}
+
 void *pause_break_handler(void *) {
     char buff[256];
 
     while (fgets(buff, 256, stdin)) {
-        if (strncmp(buff, PAUSE_CLICK, 1) == 0) {
-            pause_break = !pause_break;
-        } else if (strncmp(buff, RESET_CLICK, 1) == 0) {
-            reset = true;
-        }
+        handle_action(buff);
     }
 
     return NULL;
@@ -142,8 +151,8 @@ int main(int argc, char *argv[]) {
     spawn_detached_thread(pause_break_handler, NULL);
 
     while (1) {
-        reset = false;
-        pause_break = false;
+        mouse_action.reset = false;
+        mouse_action.pause_break = false;
         run_ptimer(conf);
     }
 
