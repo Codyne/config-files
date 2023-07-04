@@ -7,7 +7,6 @@
 (set-default-coding-systems 'utf-8)
 (set-background-color "#161616")
 (set-foreground-color "#f2f2f2")
-
 (ac-config-default) ;; auto-complete package default
 (define-key ac-completing-map [down] nil)
 (define-key ac-completing-map [up] nil)
@@ -15,7 +14,8 @@
 
 ;;;;;;;WHITESPACE SETTING;;;;;;;
 (require 'whitespace)
-(setq whitespace-line-column 100) ;; limit line length
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+;;(setq whitespace-line-column 100) ;; limit line length
 (setq whitespace-style '(face empty lines-tail trailing))
 (global-whitespace-mode t)
 (setq column-number-mode t)
@@ -48,12 +48,12 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-
  '(background "blue")
-
- '(font-lock-builtin-face ((((class color) (background dark)) (:foreground "Turquoise"))))
+ '(font-lock-builtin-face ((((class color) (background dark))
+                            (:foreground "Turquoise"))))
  '(font-lock-comment-face ((t (:foreground "MediumAquamarine"))))
- '(font-lock-constant-face ((((class color) (background dark)) (:bold t :foreground "DarkOrchid"))))
+ '(font-lock-constant-face ((((class color) (background dark))
+                             (:bold t :foreground "DarkOrchid"))))
  '(font-lock-doc-string-face ((t (:foreground "green2"))))
  '(font-lock-function-name-face ((t (:foreground "#a16a94"))))
  '(font-lock-keyword-face ((t (:bold t :foreground "#a16a94"))))
@@ -62,14 +62,13 @@
  '(font-lock-string-face ((t (:foreground "#40a371"))))
  '(font-lock-type-face ((t (:foreground "#E25252"))))
  '(font-lock-variable-name-face ((t (:foreground "#5980E3"))))
-
- '(whitespace-empty ((t (:foreground "firebrick" :background "gray30"))))
-
  '(smerge-lower ((t (:extend t :background "#ddffdd" :foreground "black"))))
  '(smerge-markers ((t (:extend t :background "grey85" :foreground "black"))))
- '(smerge-refined-added ((t (:inherit smerge-refined-change :background "#aaffaa" :foreground "black"))))
+ '(smerge-refined-added ((t (:inherit smerge-refined-change
+                                      :background "#aaffaa"
+                                      :foreground "black"))))
  '(smerge-upper ((t (:extend t :background "#ffdddd" :foreground "black"))))
- )
+ '(whitespace-empty ((t (:foreground "firebrick" :background "gray30")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;MISC SANE SETTINGS;;;;;;;
@@ -86,7 +85,12 @@
 (setq lazy-highlight-cleanup nil) ; keep search strings highlighted
 (setq scroll-step 1 scroll-conservatively 10000) ; only scroll 1 line at a time
 
-(set-face-attribute 'region nil :background "#666" :foreground "#ffffff") ; highlight color
+;; highlight color
+(set-face-attribute 'region nil :background "#666" :foreground "#fff")
+(set-face-attribute 'isearch nil :background "#666" :foreground "#fff")
+(set-face-attribute 'isearch-fail nil :background "#ff0000" :foreground "#fff")
+(set-face-attribute 'lazy-highlight nil :background "#6082b6"
+                    :foreground "#fff")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;LINUX TABS;;;;;;;;;;;
@@ -164,10 +168,23 @@
   (shell-command (concat "xelatex " (buffer-file-name) " > /dev/null 2>&1") nil))
 
 (global-set-key (kbd "C-c c") 'comptex)
+
+;; https://github.com/magnars/multiple-cursors.el
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+
+;; When you want to add multiple cursors not based on continuous lines,
+;; but based on keywords in the buffer, use:
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+;; First mark the word, then add more cursors.
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(display-fill-column-indicator-column 80)
  '(package-selected-packages '(color-theme-modern kotlin-mode cmake-mode)))
