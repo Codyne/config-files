@@ -97,7 +97,8 @@
 (use-package cape
   :init
   (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-lsp))
 
 ;; Integration between Corfu and LSP
 (use-package corfu-terminal
@@ -137,24 +138,23 @@
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook
-  ((c-mode
-    c++-mode
-    java-mode
+  ((c-mode c-ts-mode
+    c++-mode c++-ts-mode
+    java-mode java-ts-mode
     kotlin-mode
-    python-mode
+    python-mode python-ts-mode
     php-mode
-    rust-mode
-    js-mode
-    js2-mode
-    css-mode
+    rust-mode rust-ts-mode
+    js-mode js2-mode js-ts-mode
+    css-mode css-ts-mode
     web-mode
     dart-mode
-    sh-mode
-    go-mode
+    sh-mode bash-ts-mode
+    go-mode go-ts-mode
     toml-mode
-    yaml-mode
-    json-mode
-    typescript-mode)
+    yaml-mode yaml-ts-mode
+    json-mode json-ts-mode
+    typescript-mode typescript-ts-mode)
    . lsp-deferred)
   :custom
   (lsp-headerline-breadcrumb-enable t)
