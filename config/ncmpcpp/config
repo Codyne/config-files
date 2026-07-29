@@ -29,7 +29,7 @@ progressbar_look = "=>"
 progressbar_color = 13
 progressbar_elapsed_color = 13
 statusbar_color = 14
-visualizer_color = 13,14,10,15
+visualizer_color = 13
 main_window_color = 15
 current_item_prefix = "$(13)$r"
 current_item_suffix = "$/r$(end)"
