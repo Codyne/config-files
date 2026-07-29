@@ -115,16 +115,13 @@ ln -sf "$RICE_DIR/inputrc" "$HOME/.inputrc"
 mkdir -p "$HOME/Pictures/wallpapers"
 ln -sf "$RICE_DIR/wallpapers/tokyo-night.png" "$HOME/Pictures/wallpapers/tokyo-night.png"
 
-# ── Install Tokyo Night Icon Theme ────────────────────────────────────
-echo "==> Installing Tokyo Night icon theme..."
-mkdir -p "$HOME/.icons"
-ln -sfn "$RICE_DIR/icons/Tokyo-Night" "$HOME/.icons/Tokyo-Night"
-gtk-update-icon-cache "$HOME/.icons/Tokyo-Night" 2>/dev/null || true
-
 # ── Install Tokyonight GTK Theme ──────────────────────────────────────
 echo "==> Installing Tokyonight GTK theme..."
 if [ ! -d "$HOME/.themes/Tokyonight-Dark" ]; then
     bash "$RICE_DIR/themes/Tokyonight-GTK-Theme/themes/install.sh" -c dark 2>/dev/null
+    # Patch invalid GTK CSS properties
+    sed -i '/border-spacing/d' "$HOME/.themes/Tokyonight-Dark/gtk-3.0/gtk.css" 2>/dev/null
+    sed -i '/border-spacing/d' "$HOME/.themes/Tokyonight-Dark/gtk-3.0/gtk-dark.css" 2>/dev/null
 fi
 
 # ── Optional Language Servers ─────────────────────────────────────────
