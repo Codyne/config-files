@@ -124,10 +124,7 @@ gtk-update-icon-cache "$HOME/.icons/Tokyo-Night" 2>/dev/null || true
 # ── Install Tokyonight GTK Theme ──────────────────────────────────────
 echo "==> Installing Tokyonight GTK theme..."
 if [ ! -d "$HOME/.themes/Tokyonight-Dark" ]; then
-    TMP_THEME=$(mktemp -d)
-    git clone --depth 1 https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme.git "$TMP_THEME" 2>/dev/null
-    bash "$TMP_THEME/themes/install.sh" -c dark 2>/dev/null
-    rm -rf "$TMP_THEME"
+    bash "$RICE_DIR/themes/Tokyonight-GTK-Theme/themes/install.sh" -c dark 2>/dev/null
 fi
 
 # ── Optional Language Servers ─────────────────────────────────────────
