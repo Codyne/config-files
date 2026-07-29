@@ -127,7 +127,7 @@ bindsym $mod+Shift+m exec --no-startup-id i3-nws move
 bindsym $mod+Shift+Delete exec --no-startup-id terminator -e btop
 
 # Screen lock
-bindsym Control+Mod1+l exec --no-startup-id lock_screen
+bindsym Control+Mod1+l exec --no-startup-id i3lock -c 000000
 
 # Smart borders
 hide_edge_borders smart
@@ -163,10 +163,10 @@ exec --no-startup-id xinput set-prop 24 301 -0.8
 exec --no-startup-id mouse_accel
 
 # Screen tearing fix
-exec --no-startup-id nvidia-settings --assign CurrentMetaMode="HDMI-0: 1920x1080_165 +0+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}, DP-0: 1920x1080_165 +1920+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}"
+exec --no-startup-id nvidia-settings --assign CurrentMetaMode="DP-0: 1920x1080_165 +0+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}, HDMI-0: 1920x1080_165 +1920+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}"
 
 # Xrandr display config
-exec --no-startup-id xrandr --output HDMI-0 --mode 1920x1080 --rate 165.00 --primary
+exec --no-startup-id xrandr --output DP-0 --mode 1920x1080 --rate 165.00 --primary
 
 # Floating rules
 for_window [class="Yad"] floating enable
