@@ -99,6 +99,9 @@ ln -sf "$RICE_DIR/config/rofi/config.rasi" "$HOME/.config/rofi/config.rasi"
 mkdir -p "$HOME/.config/terminator"
 ln -sf "$RICE_DIR/config/terminator/config" "$HOME/.config/terminator/config"
 
+mkdir -p "$HOME/.config/zathura"
+ln -sf "$RICE_DIR/config/zathura/zathurarc" "$HOME/.config/zathura/zathurarc"
+
 mkdir -p "$HOME/.config/gtk-3.0"
 ln -sf "$RICE_DIR/config/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
 ln -sf "$RICE_DIR/config/gtk-3.0/gtk.css" "$HOME/.config/gtk-3.0/gtk.css"
@@ -136,15 +139,16 @@ pip3 install --user python-lsp-black python-lsp-isort 2>/dev/null || true
 echo "==> Applying Xresources..."
 xrdb -merge "$HOME/.Xresources" 2>/dev/null || true
 
+# ── Restart i3  ───────────────────────────────────────────────────────
+i3-msg restart
+
 # ── Done ──────────────────────────────────────────────────────────────
 echo ""
 echo "=== Installation complete! ==="
 echo ""
-echo "What to do next:"
-echo "  1. Reload i3:   \$mod+Shift+c"
-echo "  2. Open Emacs: it will auto-install all packages on first start"
-echo "     (or run M-x package-refresh-contents RET to force it)"
-echo "     Key IDE bindings: C-c l d (def), C-c l r (refs), C-c l R (rename), C-c l h (hover)"
-echo "  3. Restart Thunar for new icons"
+echo "What to do next?"
+echo "  Try Emacs: it will auto-install all packages on first start"
+echo "  (or run M-x package-refresh-contents RET to force it)"
+echo "  Key IDE bindings: C-c l d (def), C-c l r (refs), C-c l R (rename), C-c l h (hover)"
 echo ""
 echo "Backup saved to: $BACKUP_DIR"
