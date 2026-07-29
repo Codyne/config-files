@@ -1,0 +1,43 @@
+mpd_music_dir = "~/Music"
+visualizer_in_stereo = "yes"
+visualizer_fifo_path = "/tmp/mpd.fifo"
+visualizer_output_name = "my_fifo"
+visualizer_sync_interval = "30"
+visualizer_type = "spectrum"
+visualizer_look = "+|"
+message_delay_time = "3"
+playlist_shorten_total_times = "yes"
+playlist_display_mode = "columns"
+browser_display_mode = "columns"
+search_engine_display_mode = "columns"
+playlist_editor_display_mode = "columns"
+autocenter_mode = "yes"
+centered_cursor = "yes"
+user_interface = "alternative"
+follow_now_playing_lyrics = "yes"
+locked_screen_width_part = "60"
+display_bitrate = "yes"
+external_editor = "nano"
+use_console_editor = "yes"
+colors_enabled = yes
+
+# Tokyo Night colors (terminal 256-color palette)
+header_window_color = 14
+volume_color = 13
+state_flags_color = 13
+progressbar_look = "=>"
+progressbar_color = 13
+progressbar_elapsed_color = 13
+statusbar_color = 14
+visualizer_color = 13,14,10,15
+main_window_color = 15
+current_item_prefix = "$(13)$r"
+current_item_suffix = "$/r$(end)"
+alternative_header_second_line_format = {{$13$b%a$/b$15}{ - $13%b$15}{ ($13%y$15)}}|{%D}
+song_columns_list_format = "(25)[13]{a} (40)[15]{f} (30)[14]{b} (7f)[15]{l}"
+
+mpd_host = "0.0.0.0"
+mpd_port = "6600"
+mouse_list_scroll_whole_page = "yes"
+lines_scrolled = "1"
+enable_window_title = "yes"

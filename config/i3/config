@@ -1,0 +1,178 @@
+# i3 config - Tokyo Night
+
+set $mod Mod4
+
+# Font
+font pango:JetBrainsMono Nerd Font 10
+
+# Modifier
+floating_modifier $mod
+
+# Terminal
+bindsym $mod+Return exec terminator
+bindsym $mod+Shift+q kill
+
+# Launcher
+bindsym $mod+d exec --no-startup-id rofi -show run -theme ~/.config/rofi/tokyo-night.rasi
+bindsym $mod+Shift+d exec --no-startup-id rofi -show drun -theme ~/.config/rofi/tokyo-night.rasi
+
+# Focus
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+l focus up
+bindsym $mod+semicolon focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+l move up
+bindsym $mod+Shift+semicolon move right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Split
+bindsym $mod+h split h
+bindsym $mod+v split v
+
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Layout
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Floating
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+
+# Parent
+bindsym $mod+a focus parent
+
+# Workspaces
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+
+# Workspace to monitor assignment
+workspace 1 output DP-0
+workspace 3 output DP-0
+workspace 5 output DP-0
+workspace 7 output DP-0
+workspace 9 output DP-0
+
+workspace 0 output HDMI-0
+workspace 2 output HDMI-0
+workspace 4 output HDMI-0
+workspace 6 output HDMI-0
+workspace 8 output HDMI-0
+
+# Reload/restart/exit
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -b 'Yes' 'i3-msg exit'"
+
+# Resize mode
+mode "resize" {
+        bindsym j resize shrink width 10 px or 10 ppt
+        bindsym k resize grow height 10 px or 10 ppt
+        bindsym l resize shrink height 10 px or 10 ppt
+        bindsym semicolon resize grow width 10 px or 10 ppt
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# Scratchpad
+bindsym $mod+minus move scratchpad
+bindsym $mod+Shift+minus scratchpad show
+
+# Workspace navigation
+bindsym $mod+Control+Left workspace prev_on_output
+bindsym $mod+Control+Right workspace next_on_output
+
+# i3-nws workspace switching
+bindsym $mod+m exec --no-startup-id i3-nws switch
+bindsym $mod+Shift+m exec --no-startup-id i3-nws move
+
+# Btop
+bindsym $mod+Shift+Delete exec --no-startup-id urxvt -e btop
+
+# Screen lock
+bindsym Control+Mod1+l exec --no-startup-id lock_screen
+
+# Smart borders
+hide_edge_borders smart
+new_window pixel 2
+
+# Colors - Tokyo Night
+# class                 border  backgr. text    indicator child_border
+client.focused          #7aa2f7 #1a1b26 #a9b1d6 #7aa2f7   #7aa2f7
+client.focused_inactive #32364a #1a1b26 #7c84a6 #1a1b26   #32364a
+client.unfocused        #24283b #1a1b26 #7c84a6 #1a1b26   #24283b
+client.urgent           #f7768e #1a1b26 #a9b1d6 #f7768e   #f7768e
+client.placeholder      #1a1b26 #1a1b26 #a9b1d6 #1a1b26   #1a1b26
+client.background       #1a1b26
+
+# Notification daemon
+exec --no-startup-id dunst
+
+# Polybar
+exec --no-startup-id ~/.config/polybar/launch.sh
+
+# Wallpaper
+exec_always --no-startup-id feh --bg-fill ~/Pictures/wallpapers/tokyo-night.png &
+
+# Compositor
+exec --no-startup-id picom --config ~/.config/picom/picom.conf
+
+# Autostart
+exec --no-startup-id pasystray
+exec --no-startup-id nm-applet
+exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id xinput set-prop 20 301 -0.8
+exec --no-startup-id xinput set-prop 24 301 -0.8
+exec --no-startup-id mouse_accel
+
+# Screen tearing fix
+exec --no-startup-id nvidia-settings --assign CurrentMetaMode="HDMI-0: 1920x1080_165 +0+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}, DP-0: 1920x1080_165 +1920+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}"
+
+# Xrandr display config
+exec --no-startup-id xrandr --output HDMI-0 --mode 1920x1080 --rate 165.00 --primary
+
+# Floating rules
+for_window [class="Yad"] floating enable
+for_window [title="About Mozilla Firefox"] floating enable
+for_window [class="Xfce4-power-manager-settings"] floating enable
+for_window [title="Picture in picture"] floating enable
+
+# Window rules
+for_window [class="Terminator"] border pixel 1

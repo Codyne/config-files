@@ -1,9 +1,0 @@
-# set yearly and/or hourly values
-# if both set, hourly will be used
-# e.g.
-
-# yearly=50000.00
-# hourly=24.03
-
-yearly=115500
-# hourly=50

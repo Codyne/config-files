@@ -1,0 +1,58 @@
+! Tokyo Night Xresources
+
+! Cursor theme
+Xcursor.theme: DMZ-White
+Xcursor.size: 24
+
+! URxvt
+URxvt.font: xft:JetBrainsMono Nerd Font:size=10
+URxvt.boldFont: xft:JetBrainsMono Nerd Font:weight=bold:size=10
+URxvt.letterSpace: 0
+URxvt.lineSpace: 2
+
+URxvt.geometry: 120x32
+URxvt.scrollBar: false
+URxvt.saveLines: 5000
+URxvt.cursorBlink: true
+URxvt.cursorUnderline: false
+URxvt.pointerBlank: true
+URxvt.urgentOnBell: true
+URxvt.termName: rxvt-unicode-256color
+
+! Tokyo Night Colors
+URxvt.background: #1a1b26
+URxvt.foreground: #a9b1d6
+URxvt.cursorColor: #7aa2f7
+URxvt.borderColor: #1a1b26
+
+! Black
+URxvt.color0: #15161e
+URxvt.color8: #414868
+
+! Red
+URxvt.color1: #f7768e
+URxvt.color9: #f7768e
+
+! Green
+URxvt.color2: #9ece6a
+URxvt.color10: #9ece6a
+
+! Yellow
+URxvt.color3: #e0af68
+URxvt.color11: #e0af68
+
+! Blue
+URxvt.color4: #7aa2f7
+URxvt.color12: #7aa2f7
+
+! Magenta
+URxvt.color5: #bb9af7
+URxvt.color13: #bb9af7
+
+! Cyan
+URxvt.color6: #7dcfff
+URxvt.color14: #7dcfff
+
+! White
+URxvt.color7: #a9b1d6
+URxvt.color15: #c0caf5

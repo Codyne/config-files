@@ -1,0 +1,129 @@
+* {
+    bg: #1a1b26;
+    bg-alt: #24283b;
+    bg-hover: #32364a;
+    fg: #a9b1d6;
+    fg-dim: #565f89;
+    fg-alt: #565f89;
+    blue: #7aa2f7;
+    cyan: #7dcfff;
+    green: #9ece6a;
+    orange: #ff9e64;
+    purple: #bb9af7;
+    red: #f7768e;
+    yellow: #e0af68;
+    font: "JetBrainsMono Nerd Font 10";
+    background-color: @bg;
+    text-color: @fg;
+}
+
+window {
+    background-color: @bg;
+    width: 700px;
+    location: center;
+    anchor: center;
+    border-radius: 10;
+    enabled: true;
+}
+
+mainbox {
+    enabled: true;
+    padding: 16;
+    background-color: @bg;
+    children: [ "inputbar", "listview" ];
+}
+
+inputbar {
+    enabled: true;
+    padding: 12;
+    spacing: 12;
+    background-color: @bg-alt;
+    border-radius: 8;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled: true;
+    background-color: @blue;
+    text-color: @bg;
+    padding: 6 12;
+    border-radius: 6;
+}
+
+entry {
+    enabled: true;
+    background-color: @bg-alt;
+    text-color: @fg;
+    cursor-color: @blue;
+    placeholder-text-color: @fg-dim;
+}
+
+listview {
+    enabled: true;
+    background-color: @bg;
+    padding: 12 0 0 0;
+    spacing: 4;
+    lines: 10;
+    columns: 1;
+}
+
+element {
+    enabled: true;
+    background-color: @bg;
+    padding: 10 12;
+    border-radius: 6;
+    text-color: @fg;
+}
+
+element normal.normal {
+    background-color: @bg;
+}
+
+element normal.urgent {
+    background-color: @red;
+    text-color: @bg;
+}
+
+element normal.active {
+    background-color: @blue;
+    text-color: @bg;
+}
+
+element selected.normal {
+    background-color: @bg-hover;
+    text-color: @blue;
+}
+
+element selected.urgent {
+    background-color: @red;
+    text-color: @bg;
+}
+
+element selected.active {
+    background-color: @blue;
+    text-color: @bg;
+}
+
+element alternate.normal {
+    background-color: @bg;
+    text-color: @fg;
+}
+
+element alternate.urgent {
+    background-color: @red;
+    text-color: @bg;
+}
+
+element alternate.active {
+    background-color: @blue;
+    text-color: @bg;
+}
+
+element-icon {
+    size: 28px;
+}
+
+element-text {
+    text-color: @fg;
+    vertical-align: 0.5;
+}
