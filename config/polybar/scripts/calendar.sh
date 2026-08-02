@@ -6,6 +6,25 @@ case "$1" in
         mkdir -p "$theme/themes/TokyoNight/gtk-3.0"
 
         cat > "$theme/themes/TokyoNight/gtk-3.0/gtk.css" << 'THEME'
+window, dialog {
+    background-color: #1a1b26;
+    color: #a9b1d6;
+}
+button {
+    background-image: none;
+    background-color: #24283b;
+    color: #a9b1d6;
+    border: 1px solid #32364a;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+button:hover {
+    background-color: #32364a;
+}
+button:active {
+    background-color: #7aa2f7;
+    color: #1a1b26;
+}
 calendar {
     background-color: #1a1b26;
     color: #a9b1d6;
