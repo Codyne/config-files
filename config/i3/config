@@ -118,7 +118,7 @@ bindsym $mod+Shift+m exec --no-startup-id i3-nws move
 bindsym $mod+Shift+Delete exec --no-startup-id terminator -e btop
 
 # Screen lock
-bindsym Control+Mod1+l exec --no-startup-id i3lock -c 000000
+bindsym Control+Mod1+l exec --no-startup-id ~/.config/i3/lock.sh
 
 # Smart borders
 hide_edge_borders smart

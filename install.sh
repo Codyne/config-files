@@ -310,6 +310,7 @@ mkdir -p "$BACKUP_DIR"
 for f in \
     "$HOME/.config/i3/config" \
     "$HOME/.config/i3/monitor.conf" \
+    "$HOME/.config/i3/lock.sh" \
     "$HOME/.config/polybar/config.ini" \
     "$HOME/.config/dunst/dunstrc" \
     "$HOME/.config/ncmpcpp/config" \
@@ -331,6 +332,7 @@ echo "==> Installing configs..."
 
 mkdir -p "$HOME/.config/i3"
 ln -sf "$RICE_DIR/config/i3/config" "$HOME/.config/i3/config"
+ln -sf "$RICE_DIR/config/i3/lock.sh" "$HOME/.config/i3/lock.sh"
 
 mkdir -p "$HOME/.config/dunst"
 ln -sf "$RICE_DIR/config/dunst/dunstrc" "$HOME/.config/dunst/dunstrc"
