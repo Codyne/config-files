@@ -7,6 +7,6 @@ configuration {
     display-window: "Window";
     drun-display-format: "{name}";
     window-display-format: "{title}  {class}";
-    font: "JetBrainsMono Nerd Font 10";
+    font: "Liberation Mono 10";
     terminal: "urxvt";
 }

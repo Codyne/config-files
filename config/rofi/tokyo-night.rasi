@@ -12,7 +12,7 @@
     purple: #bb9af7;
     red: #f7768e;
     yellow: #e0af68;
-    font: "JetBrainsMono Nerd Font 10";
+    font: "Liberation Mono 10";
     background-color: @bg;
     text-color: @fg;
 }

@@ -4,6 +4,262 @@ set -e
 RICE_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKUP_DIR="$HOME/.config/tokyo-rice-backup-$(date +%Y%m%d-%H%M%S)"
 
+# ── Helpers ──────────────────────────────────────────────────────────
+ask_yn() {
+    # ask_yn "Prompt" default(y|n); returns 0 for yes, 1 for no
+    local prompt="$1" default="$2"
+    local ans
+    while :; do
+        printf "%s (y/N): " "$prompt"
+        if ! read -r ans; then ans="$default"; fi
+        case "${ans:-$default}" in
+            y|Y) return 0 ;;
+            n|N) return 1 ;;
+            *) echo "  Please answer y or n." >&2 ;;
+        esac
+    done
+}
+
+pick_from() {
+    # pick_from "Prompt" default_index opts...; echoes the chosen option
+    local prompt="$1" default="$2"; shift 2
+    local opts=("$@")
+    local i
+    for i in "${!opts[@]}"; do
+        echo "  [$((i+1))] ${opts[$i]}" >&2
+    done
+    local ans
+    while :; do
+        printf "%s [1-%d]: " "$prompt" "${#opts[@]}" >&2
+        if ! read -r ans; then
+            echo "${opts[$default]}"
+            return 0
+        fi
+        if [[ -z "$ans" && -n "$default" ]]; then
+            echo "${opts[$default]}"
+            return 0
+        fi
+        if [[ "$ans" =~ ^[0-9]+$ ]] && (( ans >= 1 && ans <= ${#opts[@]} )); then
+            echo "${opts[$((ans-1))]}"
+            return 0
+        fi
+        echo "  Invalid selection, try again." >&2
+    done
+}
+
+# ── Monitor detection ────────────────────────────────────────────────
+# Populates global arrays:
+#   MONITORS        connected monitor names in xrandr order
+#   MON_MODE        current/preferred mode "WxH" per monitor
+#   MON_RATE        current/preferred refresh rate per monitor
+#   MON_ORIENT      current orientation per monitor
+#   MON_IS_PRIMARY  "yes"/"no" per monitor
+detect_monitors() {
+    local out
+    out="$(xrandr --query 2>/dev/null)" || { echo "  xrandr not available"; return 1; }
+    MONITORS=()
+    declare -g -A MON_MODE MON_RATE MON_ORIENT MON_IS_PRIMARY
+    local cur="" line res rates tok rate cur_rate pref_rate rest
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^([^ ]+)[[:space:]]+connected[[:space:]]+(.*) ]]; then
+            cur="${BASH_REMATCH[1]}"
+            rest="${BASH_REMATCH[2]}"
+            MONITORS+=("$cur")
+            MON_IS_PRIMARY["$cur"]="no"
+            if [[ "$rest" == *primary* ]]; then MON_IS_PRIMARY["$cur"]="yes"; fi
+            MON_MODE["$cur"]=""
+            MON_RATE["$cur"]=""
+            if [[ "$rest" =~ ^\(([a-z]+)[[:space:]] ]]; then
+                MON_ORIENT["$cur"]="${BASH_REMATCH[1]}"
+            else
+                MON_ORIENT["$cur"]="normal"
+            fi
+        elif [[ -n "$cur" && -n "$line" && ! "$line" =~ connected ]]; then
+            read -r res rates <<< "$line"
+            if [[ "$res" =~ ^[0-9]+x[0-9]+$ ]]; then
+                cur_rate=""; pref_rate=""
+                for tok in $rates; do
+                    rate="${tok//[^0-9.]/}"
+                    if [[ -z "$cur_rate" && "$tok" == *"*"* ]]; then cur_rate="$rate"; fi
+                    if [[ -z "$pref_rate" && "$tok" == *"+"* ]]; then pref_rate="$rate"; fi
+                done
+                if [[ -z "${MON_MODE[$cur]}" && -n "$cur_rate" ]]; then MON_MODE["$cur"]="$res"; fi
+                if [[ -z "${MON_MODE[$cur]}" && -n "$pref_rate" ]]; then MON_MODE["$cur"]="$res"; fi
+                if [[ -z "${MON_RATE[$cur]}" && -n "$cur_rate" ]]; then MON_RATE["$cur"]="$cur_rate"; fi
+                if [[ -z "${MON_RATE[$cur]}" && -n "$pref_rate" ]]; then MON_RATE["$cur"]="$pref_rate"; fi
+            fi
+        elif [[ -z "$line" ]]; then
+            cur=""
+        fi
+    done <<< "$out"
+    local m
+    for m in "${MONITORS[@]}"; do
+        if [[ -z "${MON_MODE[$m]}" ]]; then MON_MODE["$m"]="1280x720"; fi
+        if [[ -z "${MON_RATE[$m]}" ]]; then MON_RATE["$m"]="60"; fi
+        if [[ -z "${MON_ORIENT[$m]}" ]]; then MON_ORIENT["$m"]="normal"; fi
+    done
+    return 0
+}
+
+eff_dims() {
+    # eff_dims <mon> -> prints "W H" (effective on-screen dimensions after rotation)
+    local mon="$1"
+    local w="${MON_MODE[$mon]%%x*}"
+    local h="${MON_MODE[$mon]##*x}"
+    case "${MON_ORIENT[$mon]}" in
+        left|right) echo "$h $w" ;;
+        *) echo "$w $h" ;;
+    esac
+}
+
+mon_pos() {
+    # mon_pos <mon> <rel> -> prints "X Y" relative to the primary at the origin
+    local mon="$1" rel="$2"
+    local pw ph mw mh
+    read -r pw ph <<< "$(eff_dims "$PRIMARY_MON")"
+    read -r mw mh <<< "$(eff_dims "$mon")"
+    case "$rel" in
+        right)  echo "$pw 0" ;;
+        left)   echo "$(( -mw )) 0" ;;
+        above)  echo "0 $(( -mh ))" ;;
+        below)  echo "0 $ph" ;;
+    esac
+}
+
+nvidia_metamode_line() {
+    local parts=() line p
+    local mon W H R x y
+    for mon in "${MONITORS[@]}"; do
+        W="${MON_MODE[$mon]%%x*}"
+        H="${MON_MODE[$mon]##*x}"
+        R="${MON_RATE[$mon]%.*}"
+        read -r x y <<< "${MON_POS[$mon]}"
+        parts+=("$mon: ${W}x${H}_${R} +${x}+${y} {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}")
+    done
+    line='exec --no-startup-id nvidia-settings --assign CurrentMetaMode="'"${parts[0]}"
+    for p in "${parts[@]:1}"; do
+        line+=", $p"
+    done
+    line+='"'
+    printf '%s\n' "$line"
+}
+
+generate_i3_monitor_conf() {
+    local conf="$HOME/.config/i3/monitor.conf"
+    local mon total w idx
+    echo "==> Writing $conf"
+    {
+        echo "# Auto-generated by install.sh - machine-specific monitor layout."
+        echo "# Re-run install.sh to regenerate. Safe to edit."
+        echo ""
+        echo "# Display configuration (mode, refresh rate, rotation, position, primary)"
+        for mon in "${MONITORS[@]}"; do
+            if [[ "$mon" == "$PRIMARY_MON" ]]; then
+                echo "exec --no-startup-id xrandr --output $mon --mode ${MON_MODE[$mon]} --rate ${MON_RATE[$mon]} --rotate ${MON_ORIENT[$mon]} --pos ${MON_POS[$mon]} --primary"
+            else
+                echo "exec --no-startup-id xrandr --output $mon --mode ${MON_MODE[$mon]} --rate ${MON_RATE[$mon]} --rotate ${MON_ORIENT[$mon]} --pos ${MON_POS[$mon]}"
+            fi
+        done
+        echo ""
+        echo "# Workspace to monitor assignment (round-robin, starting on the primary)"
+        local ordered=("$PRIMARY_MON")
+        for mon in "${MONITORS[@]}"; do
+            if [[ "$mon" != "$PRIMARY_MON" ]]; then ordered+=("$mon"); fi
+        done
+        total="${#ordered[@]}"
+        for w in {1..10}; do
+            idx=$(( (w - 1) % total ))
+            echo "workspace $w output ${ordered[$idx]}"
+        done
+        if [[ "$NVIDIA_FIX" == "yes" ]]; then
+            echo ""
+            echo "# NVIDIA screen tearing fix (ForceCompositionPipeline)"
+            echo "$(nvidia_metamode_line)"
+        fi
+    } > "$conf"
+}
+
+setup_monitors() {
+    echo "==> Detecting monitors..."
+    if ! detect_monitors || [ "${#MONITORS[@]}" -eq 0 ]; then
+        echo "  No monitors detected (xrandr unavailable or not running under X)."
+        echo "  Leaving default i3 config; no NVIDIA fix will be added."
+        NVIDIA_FIX="no"
+        mkdir -p "$HOME/.config/i3"
+        {
+            echo "# Auto-generated by install.sh"
+            echo "# No monitors detected when this file was generated."
+        } > "$HOME/.config/i3/monitor.conf"
+        return
+    fi
+    echo "  Connected monitors: ${MONITORS[*]}"
+
+    # ── Choose primary ──
+    if [ "${#MONITORS[@]}" -eq 1 ]; then
+        PRIMARY_MON="${MONITORS[0]}"
+    else
+        local default_primary=0 i
+        for i in "${!MONITORS[@]}"; do
+            if [[ "${MON_IS_PRIMARY[${MONITORS[$i]}]}" == "yes" ]]; then default_primary="$i"; fi
+        done
+        echo ""
+        echo "  Which monitor should be the primary display?"
+        PRIMARY_MON="$(pick_from "  Primary monitor" "$default_primary" "${MONITORS[@]}")"
+    fi
+    echo "  Primary: $PRIMARY_MON"
+
+    # ── Choose orientation per monitor ──
+    local mon def_orient
+    for mon in "${MONITORS[@]}"; do
+        def_orient=0
+        case "${MON_ORIENT[$mon]}" in
+            left) def_orient=1 ;;
+            right) def_orient=2 ;;
+            inverted) def_orient=3 ;;
+            *) def_orient=0 ;;
+        esac
+        echo ""
+        echo "  Orientation of $mon (current: ${MON_ORIENT[$mon]})?"
+        MON_ORIENT["$mon"]="$(pick_from "  Orientation" "$def_orient" normal left right inverted)"
+    done
+
+    # ── Choose physical layout (position relative to the primary) ──
+    declare -g -A MON_POS
+    MON_POS["$PRIMARY_MON"]="0 0"
+    local rel pos_x pos_y min_x=0 min_y=0
+    for mon in "${MONITORS[@]}"; do
+        if [[ "$mon" == "$PRIMARY_MON" ]]; then continue; fi
+        echo ""
+        echo "  Physical position of $mon relative to the primary ($PRIMARY_MON)?"
+        rel="$(pick_from "  Position" "0" right left above below)"
+        MON_POS["$mon"]="$(mon_pos "$mon" "$rel")"
+    done
+    # Normalize so the layout starts at the top-left corner (all coords >= 0)
+    for mon in "${MONITORS[@]}"; do
+        read -r pos_x pos_y <<< "${MON_POS[$mon]}"
+        if (( pos_x < min_x )); then min_x="$pos_x"; fi
+        if (( pos_y < min_y )); then min_y="$pos_y"; fi
+    done
+    for mon in "${MONITORS[@]}"; do
+        read -r pos_x pos_y <<< "${MON_POS[$mon]}"
+        MON_POS["$mon"]="$(( pos_x - min_x )) $(( pos_y - min_y ))"
+    done
+
+    # ── NVIDIA screen tearing fix ──
+    echo ""
+    NVIDIA_FIX="no"
+    if ask_yn "  Add the NVIDIA screen tearing fix to the i3 config?" "n"; then
+        if command -v nvidia-settings >/dev/null 2>&1; then
+            NVIDIA_FIX="yes"
+            echo "  NVIDIA tearing fix enabled."
+        else
+            echo "  nvidia-settings not found - skipping the NVIDIA tearing fix."
+        fi
+    fi
+
+    generate_i3_monitor_conf
+}
+
 echo "=== Tokyo Night Rice Installer ==="
 echo "Rice directory: $RICE_DIR"
 echo ""
@@ -12,12 +268,12 @@ echo ""
 echo "==> Installing system packages..."
 sudo apt-get install -y -qq \
     i3 polybar picom rofi feh terminator thunar yad dunst \
-    fonts-firacode fonts-jetbrains-mono \
+    fonts-liberation \
     curl unzip papirus-icon-theme sassc gtk2-engines-murrine \
     clangd rust-analyzer python3-pylsp 2>/dev/null || {
     echo "Warning: some packages failed to install (non-Debian system?)."
     echo "Install manually: i3 polybar picom rofi feh terminator thunar"
-    echo "  fonts-firacode fonts-jetbrains-mono papirus-icon-theme"
+    echo "  fonts-liberation papirus-icon-theme"
 }
 
 # ── Install Kotlin Language Server ─────────────────────────────────────
@@ -39,22 +295,21 @@ case ":$PATH:" in
     *) echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc" ;;
 esac
 
-# ── Install Nerd Font ─────────────────────────────────────────────────
-if ! fc-list | grep -qi "JetBrainsMono.*Nerd" 2>/dev/null; then
-    echo "==> Installing JetBrainsMono Nerd Font..."
-    mkdir -p "$HOME/.fonts"
-    curl -fSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip" \
-        -o /tmp/jetbrains.zip
-    unzip -o /tmp/jetbrains.zip -d "$HOME/.fonts" "*.ttf" 2>/dev/null
-    fc-cache -fv "$HOME/.fonts" 2>/dev/null
-    rm /tmp/jetbrains.zip
-fi
+# ── Monitor setup ────────────────────────────────────────────────────
+# Detects connected monitors and asks the user about primary display,
+# per-monitor orientation, and the NVIDIA screen tearing fix. Writes the
+# machine-specific layout to ~/.config/i3/monitor.conf (pulled in via the
+# i3 config's `include`).
+echo ""
+echo "==> Monitor setup"
+setup_monitors
 
 # ── Backup existing configs ───────────────────────────────────────────
 echo "==> Backing up existing configs to $BACKUP_DIR..."
 mkdir -p "$BACKUP_DIR"
 for f in \
     "$HOME/.config/i3/config" \
+    "$HOME/.config/i3/monitor.conf" \
     "$HOME/.config/polybar/config.ini" \
     "$HOME/.config/dunst/dunstrc" \
     "$HOME/.config/ncmpcpp/config" \

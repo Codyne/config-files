@@ -47,7 +47,7 @@
   (load-theme 'tokyo-night t))
 
 ;; Font
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 110)
+(set-face-attribute 'default nil :font "Liberation Mono" :height 110)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Minibuffer completion (Vertico stack)

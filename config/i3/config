@@ -3,7 +3,7 @@
 set $mod Mod4
 
 # Font
-font pango:JetBrainsMono Nerd Font 10
+font pango:Liberation Mono 10
 
 # Modifier
 floating_modifier $mod
@@ -78,18 +78,9 @@ bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
-# Workspace to monitor assignment
-workspace 1 output DP-0
-workspace 3 output DP-0
-workspace 5 output DP-0
-workspace 7 output DP-0
-workspace 9 output DP-0
-
-workspace 0 output HDMI-0
-workspace 2 output HDMI-0
-workspace 4 output HDMI-0
-workspace 6 output HDMI-0
-workspace 8 output HDMI-0
+# Workspace to monitor assignment + display setup
+# Generated per-machine by install.sh based on detected monitors.
+include ~/.config/i3/monitor.conf
 
 # Reload/restart/exit
 bindsym $mod+Shift+c reload
@@ -162,11 +153,7 @@ exec --no-startup-id xinput set-prop 20 301 -0.8
 exec --no-startup-id xinput set-prop 24 301 -0.8
 exec --no-startup-id mouse_accel
 
-# Screen tearing fix
-exec --no-startup-id nvidia-settings --assign CurrentMetaMode="DP-0: 1920x1080_165 +0+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}, HDMI-0: 1920x1080_165 +1920+0 {ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}"
-
-# Xrandr display config
-exec --no-startup-id xrandr --output DP-0 --mode 1920x1080 --rate 165.00 --primary
+# (Screen tearing fix + xrandr display config are generated in monitor.conf)
 
 # Floating rules
 for_window [class="Yad"] floating enable
