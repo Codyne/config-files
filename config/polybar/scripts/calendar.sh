@@ -3,9 +3,9 @@
 case "$1" in
     --popup)
         theme=$(mktemp -d)
-        mkdir -p "$theme/TokyoNight/gtk-3.0"
+        mkdir -p "$theme/themes/TokyoNight/gtk-3.0"
 
-        cat > "$theme/TokyoNight/gtk-3.0/gtk.css" << 'THEME'
+        cat > "$theme/themes/TokyoNight/gtk-3.0/gtk.css" << 'THEME'
 calendar {
     background-color: #1a1b26;
     color: #a9b1d6;
@@ -26,7 +26,7 @@ calendar:indeterminate {
 }
 THEME
 
-        cat > "$theme/TokyoNight/index.theme" << 'THEME'
+        cat > "$theme/themes/TokyoNight/index.theme" << 'THEME'
 [Desktop Entry]
 Type=X-GNOME-Metatheme
 Name=TokyoNight
