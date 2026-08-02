@@ -3,14 +3,16 @@ set -e
 
 RICE_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKUP_DIR="$HOME/.config/tokyo-rice-backup-$(date +%Y%m%d-%H%M%S)"
+CACHE_FILE="$HOME/.cache/tokyo-night-install.conf"
 
 # ── Helpers ──────────────────────────────────────────────────────────
 ask_yn() {
     # ask_yn "Prompt" default(y|n); returns 0 for yes, 1 for no
     local prompt="$1" default="$2"
-    local ans
+    local ans hint
+    if [[ "$default" == "y" ]]; then hint="Y/n"; else hint="y/N"; fi
     while :; do
-        printf "%s (y/N): " "$prompt"
+        printf "%s (%s): " "$prompt" "$hint"
         if ! read -r ans; then ans="$default"; fi
         case "${ans:-$default}" in
             y|Y) return 0 ;;
@@ -179,6 +181,80 @@ generate_i3_monitor_conf() {
     } > "$conf"
 }
 
+# ── Options cache ────────────────────────────────────────────────────
+# Saves the monitor/primary/NVIDIA choices to $CACHE_FILE so re-running
+# the installer doesn't require re-answering the same questions.
+load_cached_options() {
+    # Sources $CACHE_FILE if it exists and the saved monitor set matches the
+    # currently connected monitors (and the user agrees). Returns 0 on success.
+    [ -f "$CACHE_FILE" ] || return 1
+
+    local connected=()
+    connected=("${MONITORS[@]}")
+
+    if ! source "$CACHE_FILE" 2>/dev/null; then
+        echo "  Could not read $CACHE_FILE; ignoring it."
+        MONITORS=("${connected[@]}")
+        return 1
+    fi
+
+    local cached current
+    cached="$(printf '%s\n' "${MONITORS[@]}" | sort | tr '\n' ' ')"
+    current="$(printf '%s\n' "${connected[@]}" | sort | tr '\n' ' ')"
+    if [ "$cached" != "$current" ]; then
+        echo "  Saved options don't match connected monitors; ignoring cache."
+        MONITORS=("${connected[@]}")
+        return 1
+    fi
+
+    if ask_yn "  Use saved options (primary: $PRIMARY_MON)?" "y"; then
+        return 0
+    fi
+
+    MONITORS=("${connected[@]}")
+    return 1
+}
+
+save_cache() {
+    echo "==> Saving options to $CACHE_FILE"
+    mkdir -p "$(dirname "$CACHE_FILE")"
+    {
+        echo "# Tokyo Night Rice installer options cache"
+        echo "# Saved: $(date)"
+        echo "# Delete this file to re-answer all the questions."
+        echo ""
+        echo "declare -g MONITORS=("
+        local m
+        for m in "${MONITORS[@]}"; do
+            echo "    \"$m\""
+        done
+        echo ")"
+        echo "declare -g PRIMARY_MON=\"$PRIMARY_MON\""
+        echo "declare -g NVIDIA_FIX=\"$NVIDIA_FIX\""
+        echo ""
+        echo "declare -g -A MON_MODE=("
+        for m in "${MONITORS[@]}"; do
+            echo "    [\"$m\"]=\"${MON_MODE[$m]}\""
+        done
+        echo ")"
+        echo "declare -g -A MON_RATE=("
+        for m in "${MONITORS[@]}"; do
+            echo "    [\"$m\"]=\"${MON_RATE[$m]}\""
+        done
+        echo ")"
+        echo "declare -g -A MON_ORIENT=("
+        for m in "${MONITORS[@]}"; do
+            echo "    [\"$m\"]=\"${MON_ORIENT[$m]}\""
+        done
+        echo ")"
+        echo "declare -g -A MON_POS=("
+        for m in "${MONITORS[@]}"; do
+            echo "    [\"$m\"]=\"${MON_POS[$m]}\""
+        done
+        echo ")"
+    } > "$CACHE_FILE"
+}
+
 setup_monitors() {
     echo "==> Detecting monitors..."
     if ! detect_monitors || [ "${#MONITORS[@]}" -eq 0 ]; then
@@ -193,6 +269,13 @@ setup_monitors() {
         return
     fi
     echo "  Connected monitors: ${MONITORS[*]}"
+
+    # ── Reuse previously saved options if the setup hasn't changed ──
+    if load_cached_options; then
+        echo "  Using saved options (primary: $PRIMARY_MON, NVIDIA fix: $NVIDIA_FIX)."
+        generate_i3_monitor_conf
+        return
+    fi
 
     # ── Choose primary ──
     if [ "${#MONITORS[@]}" -eq 1 ]; then
@@ -257,6 +340,7 @@ setup_monitors() {
         fi
     fi
 
+    save_cache
     generate_i3_monitor_conf
 }
 
