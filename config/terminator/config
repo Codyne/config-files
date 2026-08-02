@@ -40,11 +40,10 @@
       parent = ""
       size = 1100, 700
     [[[child1]]]
+      profile = tokyo-night
       position = 0:0
       type = Terminal
       order = 0
       parent = child0
       size = 1100, 700
-    [[[terminal1]]]
-      profile = tokyo-night
 [plugins]
