@@ -114,6 +114,9 @@ bindsym $mod+Control+Right workspace next_on_output
 bindsym $mod+m exec --no-startup-id i3-nws switch
 bindsym $mod+Shift+m exec --no-startup-id i3-nws move
 
+# Screenshots
+bindsym Print exec --no-startup-id "rm -f /tmp/screenshot.png && scrot -s /tmp/screenshot.png && xclip -selection clipboard -t image/png /tmp/screenshot.png"
+
 # Btop
 bindsym $mod+Shift+Delete exec --no-startup-id terminator -e btop
 
