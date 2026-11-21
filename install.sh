@@ -407,7 +407,9 @@ for f in \
     "$HOME/.emacs.d/init.el" \
     "$HOME/.Xresources" \
     "$HOME/.bashrc" \
-    "$HOME/.inputrc"; do
+    "$HOME/.inputrc" \
+    "/usr/local/bin/polybar-reload" \
+    "/usr/local/bin/nvidia-reload"; do
     [ -f "$f" ] && cp --parents "$f" "$BACKUP_DIR" 2>/dev/null || true
 done
 
@@ -458,6 +460,13 @@ ln -sf "$RICE_DIR/inputrc" "$HOME/.inputrc"
 
 mkdir -p "$HOME/Pictures/wallpapers"
 ln -sf "$RICE_DIR/wallpapers/tokyo-night.png" "$HOME/Pictures/wallpapers/tokyo-night.png"
+
+# ── Install helper scripts ────────────────────────────────────────────
+echo "==> Installing helper scripts to /usr/local/bin..."
+sudo mkdir -p /usr/local/bin
+for script in polybar-reload nvidia-reload; do
+    sudo install -m 755 "$RICE_DIR/bin/$script" "/usr/local/bin/$script"
+done
 
 # ── Install Tokyonight GTK Theme ──────────────────────────────────────
 echo "==> Installing Tokyonight GTK theme..."
